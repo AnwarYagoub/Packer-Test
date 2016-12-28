@@ -1,0 +1,49 @@
+{
+  "builders": [{
+    "type": "virtualbox-iso",
+    "guest_os_type": "RedHat_64",
+    "iso_urls": [
+      "isos/CentOS-7-x86_64-Minimal-1611.iso",
+      "http://ct.mirror.garr.it/mirrors/CentOS/7.3.1611/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
+    ],
+    "iso_checksum": "27bd866242ee058b7a5754e83d8ee8403e216b93d130d800852a96f41c34d86a",
+    "iso_checksum_type": "sha256",
+    "ssh_username": "vagrant",
+    "ssh_password": "vagrant",
+    "ssh_wait_timeout": "2h",
+    "shutdown_command": "echo 'vagrant' | sudo -S /sbin/halt -h -p",
+    "disk_size": "8000",
+    "boot_wait": "5s",
+    "http_directory": "http",
+    "vboxmanage": [
+      ["modifyvm", "{{.Name}}", "--memory", "1024"],
+      ["modifyvm", "{{.Name}}", "--cpus", "1"]
+    ],
+    "boot_command": [
+      "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks-centos7.cfg<enter><wait>"
+    ]
+  }],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "scripts/ansible-centos.sh",
+      "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -S -E bash '{{ .Path }}'"
+    },{
+      "type": "shell",
+      "script": "scripts/vagrant-sudo.sh",
+      "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -S -E bash '{{ .Path }}'"
+    },{
+      "type": "ansible-local",
+      "playbook_dir": "ansible",
+      "playbook_file": "ansible/playbook.yml"
+    },{
+      "type": "shell",
+      "script": "scripts/cleanup-centos.sh",
+      "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -S -E bash '{{ .Path }}'"
+    }
+  ],
+  "post-processors": [{
+    "type": "vagrant",
+    "output": "builds/CentOS-7-{{.Provider}}.box"
+  }]
+}

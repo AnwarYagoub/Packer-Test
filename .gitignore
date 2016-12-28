@@ -1,0 +1,17 @@
+# vagrant directory
+.vagrant/
+
+# ignore isos directory
+isos/
+
+# ignore packer cache directory
+packer_cache/
+
+# ignore virtualbox-iso builder temporary directory
+output-virtualbox-iso/
+
+# ignore builds directory
+builds/
+
+# ignore baked boxes
+*.box

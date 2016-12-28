@@ -1,0 +1,72 @@
+{
+  "builders": [{
+    "type": "virtualbox-iso",
+    "guest_os_type": "Ubuntu_64",
+    "iso_urls": [
+      "isos/ubuntu-16.04.1-server-amd64.iso",
+      "http://releases.ubuntu.com/16.04.1/ubuntu-16.04.1-server-amd64.iso"
+    ],
+    "iso_checksum": "29a8b9009509b39d542ecb229787cdf48f05e739a932289de9e9858d7c487c80",
+    "iso_checksum_type": "sha256",
+    "ssh_username": "vagrant",
+    "ssh_password": "vagrant",
+    "ssh_wait_timeout": "2h",
+    "shutdown_command": "echo 'vagrant'| sudo -S shutdown -P now",
+    "disk_size": "8000",
+    "boot_wait": "5s",
+    "http_directory": "http",
+    "vboxmanage": [
+      ["modifyvm", "{{.Name}}", "--memory", "1024"],
+      ["modifyvm", "{{.Name}}", "--cpus", "1"]
+    ],
+    "boot_command": [
+      "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+      "/install/vmlinuz<wait>",
+      " auto<wait>",
+      " console-setup/ask_detect=false<wait>",
+      " console-setup/layoutcode=us<wait>",
+      " console-setup/modelcode=pc105<wait>",
+      " debconf/frontend=noninteractive<wait>",
+      " debian-installer=en_US<wait>",
+      " fb=false<wait>",
+      " initrd=/install/initrd.gz<wait>",
+      " kbd-chooser/method=us<wait>",
+      " keyboard-configuration/layout=USA<wait>",
+      " keyboard-configuration/variant=USA<wait>",
+      " locale=en_US<wait>",
+      " netcfg/get_domain=vm<wait>",
+      " netcfg/get_hostname=vagrant<wait>",
+      " grub-installer/bootdev=/dev/sda<wait>",
+      " noapic<wait>",
+      " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed-ubuntu-16.04.cfg",
+      " -- <wait>",
+      "<enter><wait>"
+    ]
+  }],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "scripts/ansible-ubuntu.sh",
+      "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -S -E bash '{{ .Path }}'"
+    },{
+      "type": "shell",
+      "script": "scripts/vagrant-sudo.sh",
+      "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -S -E bash '{{ .Path }}'"
+    },{
+      "type": "ansible-local",
+      "playbook_dir": "ansible",
+      "playbook_file": "ansible/playbook.yml"
+    },{
+      "type": "shell",
+      "script": "scripts/cleanup-ubuntu.sh",
+      "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -S -E bash '{{ .Path }}'"
+    }
+  ],
+  "post-processors": [{
+    "type": "vagrant",
+    "output": "builds/Ubuntu-16.04-{{.Provider}}.box"
+  }]
+}
