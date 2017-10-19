@@ -8,3 +8,8 @@
       - name: This is a test task in an ansible playbook
         debug:
           msg="Hello Packer!"
+      - name: Get latest vagrant public key
+        authorized_key:
+          user: vagrant
+          state: present
+          key: https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub

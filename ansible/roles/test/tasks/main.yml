@@ -1,5 +1,5 @@
 ---
 
-- name: This is a test task in side an ansible role
+- name: This is a test task inside an ansible role
   debug:
     msg="Hello Packer!"
