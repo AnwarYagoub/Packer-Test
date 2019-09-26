@@ -13,3 +13,5 @@ $ packer validate CentOS-7.json
 
 $ packer build CentOS-7.json
 ```
+
+this is my project anwar please remove it from github
