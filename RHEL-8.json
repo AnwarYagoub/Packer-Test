@@ -1,0 +1,57 @@
+{
+    "builders": [{
+      "type": "virtualbox-iso",
+      "guest_os_type": "RedHat_64",
+      "iso_urls": [
+        "isos/rhel-8.2-x86_64-dvd.iso"
+      ],
+      "iso_checksum": "sha256:7FDFED9C7CCED4E526A362E64ED06BCDC6CE0394A98625A40E7D05DB29BF7B86",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_wait_timeout": "2h",
+      "shutdown_command": "echo 'vagrant' | sudo -S /sbin/halt -h -p",
+      "disk_size": "8000",
+      "boot_wait": "5s",
+      "http_directory": "http",
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--memory", "2048"],
+        ["modifyvm", "{{.Name}}", "--cpus", "1"]
+      ],
+      "boot_command": [
+        "<up><wait><tab> inst.text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks-rhel-8.cfg<enter><wait>"
+      ]
+    }],
+    "provisioners": [
+      {
+        "type": "shell",
+        "script": "scripts/vagrant-sudo.sh",
+        "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -S -E bash '{{ .Path }}'"
+      },
+      {
+        "type": "shell",
+        "script": "scripts/redhat-credentials.sh",
+        "remote_path": "/tmp/redhat-credentials.sh",
+        "skip_clean": true,
+        "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -S -E bash '{{ .Path }}'"
+      },
+      {
+        "type": "shell",
+        "script": "scripts/ansible-rhel.sh",
+        "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -S -E bash '{{ .Path }}'"
+      },{
+        "type": "ansible-local",
+        "command": "ANSIBLE_NOCOLOR=True ansible-playbook",
+        "playbook_dir": "ansible",
+        "playbook_file": "ansible/playbook.yml"
+      },{
+        "type": "shell",
+        "script": "scripts/cleanup-rhel.sh",
+        "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -S -E bash '{{ .Path }}'"
+      }
+    ],
+    "post-processors": [{
+      "type": "vagrant",
+      "output": "builds/RHEL-8-{{.Provider}}.box"
+    }]
+  }
+  
