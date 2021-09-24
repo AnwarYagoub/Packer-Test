@@ -13,3 +13,11 @@ $ packer validate CentOS-7.json
 
 $ packer build CentOS-7.json
 ```
+
+# Build RHEL 8.2
+
+```shell
+$ packer validate RHEL-8.json
+
+$ packer build RHEL-8.json
+```
